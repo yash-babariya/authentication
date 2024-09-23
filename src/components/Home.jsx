@@ -12,27 +12,29 @@ const Home = () => {
 
     useEffect(() => {
         const fetchUserData = async () => {
+            const token = localStorage.getItem('token');
+            if (!token) {
+                handleLogout();
+                return;
+            }
+
             try {
-                const token = localStorage.getItem('token');
                 const response = await axios.get(`${API_BASE_URL}/auth/user`, {
                     headers: { Authorization: `Bearer ${token}` }
                 });
                 setUserData(response.data);
             } catch (error) {
-                localStorage.removeItem('token');
-                window.location.reload();
-                toast.error('Session expired. Please login again.');
-                navigate('/login');
+                handleLogout();
             }
         };
 
         fetchUserData();
-    }, []);
+    }, [navigate]);
 
     const handleLogout = () => {
         localStorage.removeItem('token');
-        window.location.reload();
-        toast.success('Logout successful!');
+        setUserData(null);
+        toast.error('Session expired. Please login again.');
         navigate('/login');
     };
 
